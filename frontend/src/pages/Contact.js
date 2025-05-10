@@ -1,8 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import axios from 'axios';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
+  
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/messages/send", formData);
+      setStatusMessage(response.data.message);  // "Message sent successfully"
+      setIsSuccess(true); // Set success status
+      setFormData({ name: "", email: "", message: "" }); // Clear form fields
+    } catch (error) {
+      setStatusMessage(error.response?.data?.message || "Error sending message");  // Error message
+      setIsSuccess(false); // Set error status
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-700 flex items-center justify-center p-6">
       <motion.div
@@ -17,10 +49,13 @@ const Contact = () => {
             Get in Touch
           </h1>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <motion.div whileFocus={{ scale: 1.05 }}>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
                 placeholder="Your Name"
                 className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               />
@@ -29,6 +64,9 @@ const Contact = () => {
             <motion.div whileFocus={{ scale: 1.05 }}>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
                 placeholder="Your Email"
                 className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               />
@@ -36,6 +74,9 @@ const Contact = () => {
 
             <motion.div whileFocus={{ scale: 1.05 }}>
               <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
                 placeholder="Your Message"
                 rows="3"
                 className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
@@ -50,6 +91,13 @@ const Contact = () => {
               Send Message
             </motion.button>
           </form>
+
+          {/* Status Message */}
+          {statusMessage && (
+            <div className={`mt-4 text-center ${isSuccess ? "text-green-500" : "text-red-500"}`}>
+              {statusMessage}
+            </div>
+          )}
         </div>
 
         {/* Contact Details Section */}

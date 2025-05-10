@@ -2,3 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+.overlay-after {
+    position:relative;
+}
+
+.overlay-after::after {
+    content:'';
+    position:absolute;
+    background-color: #00000061;
+    height: 100%;
+    width: 100%;
+    top: 0;
+}
+
+.overlay-after .container {
+    z-index: 9;
+   ;position: relative;}

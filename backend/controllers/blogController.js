@@ -1,10 +1,10 @@
 import Blog from "../models/Blog.js";
 import multer from "multer";
 
-// Multer Storage Setup
+// Multer Storage Setup (No changes needed here)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Save images to 'uploads' folder
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// GET all blogs
+// GET all blogs (No changes needed here)
 export const getBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find();
@@ -23,13 +23,14 @@ export const getBlogs = async (req, res) => {
   }
 };
 
-// POST a new blog with image
+// POST a new blog with image and userId
 export const createBlog = async (req, res) => {
   try {
     const { title, content, author } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null; // Save image path
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const userId = req.user.id; // Get userId from the authenticated user
 
-    const newBlog = new Blog({ title, content, author, imageUrl });
+    const newBlog = new Blog({ title, content, author, imageUrl, userId });
     await newBlog.save();
 
     res.status(201).json(newBlog);
@@ -38,5 +39,16 @@ export const createBlog = async (req, res) => {
   }
 };
 
-// Export multer middleware for routes
+// GET blogs by user ID
+export const getBlogsByUser = async (req, res) => {
+  try {
+    const userId = req.user.id; // Get userId from the authenticated user
+    const blogs = await Blog.find({ userId }).sort({ createdAt: -1 }); // Fetch blogs for the specific user, newest first
+    res.status(200).json(blogs);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user's blogs", error });
+  }
+};
+
+// Export multer middleware for routes (No changes needed here)
 export const uploadMiddleware = upload.single("image");

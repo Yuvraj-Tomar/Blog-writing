@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const SignUp = () => {
-  // State for user input
   const [user, setUser] = useState({
     fullName: "",
     email: "",
     password: "",
   });
+  const navigate = useNavigate(); // Initialize useNavigate
 
-  // Handle input change
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       const response = await fetch("http://localhost:5000/api/signup", {
         method: "POST",
@@ -30,33 +30,50 @@ const SignUp = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Signup successful!"); 
+        Swal.fire({
+          icon: 'success',
+          title: 'Signup Successful!',
+          text: 'Your account has been created successfully.',
+          confirmButtonColor: '#3085d6',
+          // Add the then() block to handle the button click
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate('/login'); // Redirect to the login page
+          }
+        });
       } else {
-        alert(data.message || "Signup failed");
+        Swal.fire({
+          icon: 'error',
+          title: 'Signup Failed',
+          text: data.message || 'Something went wrong during signup.',
+          confirmButtonColor: '#d33',
+        });
       }
     } catch (error) {
       console.error("Signup Error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Signup Failed',
+        text: 'There was a network error. Please try again later.',
+        confirmButtonColor: '#d33',
+      });
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
-      <video autoPlay loop muted className="fixed top-0 left-0 w-full h-full object-cover">
-        <source src="/vedio.mp4" type="video/mp4" />
-      </video>
-
-      <div className="fixed inset-0 bg-black/30"></div>
-
+    <div className="h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 p-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative bg-white/50 backdrop-blur-md p-8 rounded-lg shadow-lg max-w-md w-full text-gray-900"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white p-7 rounded-lg shadow-lg max-w-md w-full mt-0"
       >
-        <h2 className="text-3xl font-bold text-center mb-6">Create Account</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Create Account
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <motion.div whileFocus={{ scale: 1.05 }}>
+          <motion.div whileFocus={{ scale: 1.02 }}>
             <label className="block mb-1 text-sm text-gray-800">Full Name</label>
             <input
               type="text"
@@ -64,12 +81,11 @@ const SignUp = () => {
               placeholder="Enter your full name"
               value={user.fullName}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg bg-white/70 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               required
             />
           </motion.div>
-
-          <motion.div whileFocus={{ scale: 1.05 }}>
+          <motion.div whileFocus={{ scale: 1.02 }}>
             <label className="block mb-1 text-sm text-gray-800">Email Address</label>
             <input
               type="email"
@@ -77,12 +93,11 @@ const SignUp = () => {
               placeholder="Enter your email"
               value={user.email}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg bg-white/70 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               required
             />
           </motion.div>
-
-          <motion.div whileFocus={{ scale: 1.05 }}>
+          <motion.div whileFocus={{ scale: 1.02 }}>
             <label className="block mb-1 text-sm text-gray-800">Password</label>
             <input
               type="password"
@@ -90,14 +105,13 @@ const SignUp = () => {
               placeholder="Enter your password"
               value={user.password}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg bg-white/70 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               required
             />
           </motion.div>
-
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="submit"
             className="w-full bg-blue-600 text-white py-3 rounded-lg shadow-lg font-semibold transition"
           >

@@ -6,7 +6,7 @@ import { FaFacebook, FaTwitter, FaInstagram, FaLaugh } from "react-icons/fa";
 const Home = () => {
   const [showVideo, setShowVideo] = useState(true);
   const [blogs, setBlogs] = useState([]);
-  const [latestBlog, setLatestBlog] = useState(null); // State for the latest blog
+  const [latestBlog, setLatestBlog] = useState(null);
 
   // Fetch all blogs
   useEffect(() => {
@@ -86,86 +86,117 @@ const Home = () => {
       </div>
 
       {/* Featured Blogs Section */}
-<section id="featured-section" className="relative bg-gradient-to-r from-purple-800 to-blue-600 text-white py-16 px-4 md:px-10">
-  <h2 className="text-3xl font-bold text-center mb-8">Featured Blogs</h2>
-  <div className="grid md:grid-cols-3 gap-8">
-    {blogs.length > 0 ? (
-      blogs.map((blog) => (
-        <div
-          key={blog._id}
-          className="bg-purple-900 p-6 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
-        >
-          {/* Image and Title Section */}
-          <div className="flex items-center gap-4">
-            {/* Blog Image (Larger Size) */}
-            {blog.imageUrl && (
-              <img
-                src={`http://localhost:5000${blog.imageUrl}`}
-                alt="Blog"
-                className="rounded-full w-20 h-20 object-cover"
-              />
-            )}
-            {/* Blog Title & Author Name (Aligned Middle-Right) */}
-            <div className="flex flex-col justify-center">
-              <h3 className="text-white font-semibold text-lg">{blog.title}</h3>
-              <p className="text-yellow-300 text-md font-bold">By {blog.author}</p>
+      <section id="featured-section" className="relative bg-gradient-to-r from-purple-800 to-blue-600 text-white py-16 px-4 md:px-10">
+        <h2 className="text-3xl font-bold text-center mb-8">Featured Blogs</h2>
+        <div className="relative">
+          <div className="flex items-center justify-between">
+            {/* Left Arrow Button */}
+            <button
+              className="text-white text-4xl px-4 hover:text-yellow-400 transition duration-300"
+              onClick={() => {
+                const scrollContainer = document.getElementById("featured-blogs-container");
+                scrollContainer.scrollLeft -= 300;
+              }}
+            >
+              &#8592;
+            </button>
+
+            {/* Blog Cards Container */}
+            <div
+              id="featured-blogs-container"
+              className="flex gap-8 overflow-hidden scroll-smooth py-4"
+              style={{ scrollBehavior: "smooth", width: "calc(100% - 100px)" }}
+            >
+              {blogs.length > 0 ? (
+                blogs.map((blog) => (
+                  <Link
+                    to={`/landing#${blog._id}`}  // Navigate to Landing Page with blog ID as hash
+                    key={blog._id}
+                    className="bg-purple-900 p-6 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 min-w-[250px]"
+                  >
+                    <div className="flex items-center gap-4">
+                      {blog.imageUrl && (
+                        <img
+                          src={`http://localhost:5000${blog.imageUrl}`}
+                          alt="Blog"
+                          className="rounded-full w-20 h-20 object-cover"
+                        />
+                      )}
+                      <div className="flex flex-col justify-center">
+                        <h3 className="text-white font-semibold text-lg">{blog.title}</h3>
+                        <p className="text-yellow-300 text-md font-bold">By {blog.author}</p>
+                      </div>
+                    </div>
+                    <p className="opacity-80 mt-4">{blog.content.substring(0, 100)}...</p>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-center w-full">No blogs available.</p>
+              )}
             </div>
-          </div>
 
-          {/* Content (Below Image, Title & Author) */}
-          <p className="opacity-80 mt-4">{blog.content.substring(0, 100)}...</p>
+            {/* Right Arrow Button */}
+            <button
+              className="text-white text-4xl px-4 hover:text-yellow-400 transition duration-300"
+              onClick={() => {
+                const scrollContainer = document.getElementById("featured-blogs-container");
+                scrollContainer.scrollLeft += 300;
+              }}
+            >
+              &#8594;
+            </button>
+          </div>
         </div>
-      ))
-    ) : (
-      <p className="text-center w-full">No blogs available.</p>
-    )}
-  </div>
-</section>
+      </section>
 
-
-{/* Latest Blogs Section */}
-<section className="py-16 px-4 md:px-10 bg-purple-900 text-white relative">
-  <h2 className="text-3xl font-bold text-center mb-8">Latest Blogs</h2>
-  <p className="text-lg text-center mb-6">So here are the blogs that are published on this website</p>
-  <div className="flex items-center justify-between">
-    <button className="text-white text-4xl px-4 hover:text-yellow-400 transition duration-300">
-      &#8592;
-    </button>
-    {latestBlog ? (
-      <div className="bg-white text-purple-800 p-10 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-96 relative">
-        {/* Blog Image - Bigger Circular Thumbnail */}
-        {latestBlog.imageUrl && (
-          <div className="flex items-center">
-            <img
-              src={`http://localhost:5000${latestBlog.imageUrl}`}
-              alt="Latest Blog"
-              className="w-20 h-20 object-cover rounded-full border-2 border-white"
-            />
-            {/* Author Name - Middle-Right of Image */}
-            <p className="text-yellow-600 font-semibold text-lg ml-4">By {latestBlog.author}</p>
-          </div>
-        )}
-        {/* Title */}
-        <h3 className="text-2xl font-semibold text-center mt-6">{latestBlog.title}</h3>
-        {/* Content */}
-        <p className="opacity-80 mt-2 text-center">{latestBlog.content.substring(0, 100)}...</p>
-      </div>
-    ) : (
-      <p className="text-center w-full">No latest blog available.</p>
-    )}
-    <button className="text-white text-4xl px-4 hover:text-yellow-400 transition duration-300">
-      &#8594;
-    </button>
-  </div> 
-</section>
+      {/* Latest Blogs Section */}
+      <section className="py-16 px-4 md:px-10 bg-purple-900 text-white relative">
+        <h2 className="text-3xl font-bold text-center mb-8">Latest Blogs</h2>
+        <p className="text-lg text-center mb-6">
+          So here are the blog that are latest published on this website.
+        </p>
+        <div className="flex items-center justify-center">
+          {latestBlog ? (
+            <Link
+              to={`/landing#${latestBlog._id}`}  // Navigate to Landing Page with blog ID as hash
+              className="bg-white text-purple-800 p-10 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-96 relative"
+            >
+              {/* Blog Image - Bigger Circular Thumbnail */}
+              {latestBlog.imageUrl && (
+                <div className="flex items-center">
+                  <img
+                    src={`http://localhost:5000${latestBlog.imageUrl}`}
+                    alt="Latest Blog"
+                    className="w-20 h-20 object-cover rounded-full border-2 border-white"
+                  />
+                  {/* Author Name - Middle-Right of Image */}
+                  <p className="text-yellow-600 font-semibold text-lg ml-4">
+                    By {latestBlog.author}
+                  </p>
+                </div>
+              )}
+              {/* Title */}
+              <h3 className="text-2xl font-semibold text-center mt-6">
+                {latestBlog.title}
+              </h3>
+              {/* Content */}
+              <p className="opacity-80 mt-2 text-center">
+                {latestBlog.content.substring(0, 100)}...
+              </p>
+            </Link>
+          ) : (
+            <p className="text-center w-full">No latest blog available.</p>
+          )}
+        </div>
+      </section>
 
       {/* Footer Section */}
       <footer className="bg-gray-800 text-white py-10 px-4 md:px-10 flex justify-between items-center">
         <div className="text-left">
           <h3 className="text-2xl font-semibold mb-4">Contact Us</h3>
-          <p>Email: manusinghtomar2001@gmail.com</p>
+          <p>Email: yuvrajtomar.dev@gmail.com</p>
           <p>Phone: +91 9755124554</p>
-          <p>Address: 123 Blog Street, Gwalior, Madhya Pradesh, India</p>
+          <p>Address: Pardesi Pura Electronix complex, Indore , Madhya Pradesh, India</p>
         </div>
         <div className="flex flex-col items-end">
           <FaLaugh className="text-yellow-400 text-6xl" />

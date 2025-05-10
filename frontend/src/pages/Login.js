@@ -1,17 +1,20 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import axios from "axios"; // Import axios for API requests
-import { useNavigate } from "react-router-dom"; // For navigation after login
+import React, { useState, useContext } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError("");
 
     try {
       const response = await axios.post("http://localhost:5000/api/users/login", {
@@ -19,89 +22,89 @@ const Login = () => {
         password,
       });
 
-      // If login is successful, store token & navigate
-      localStorage.setItem("token", response.data.token);
-      alert("Login Successful!");
-      navigate("/Home"); // Redirect to dashboard or homepage
+      const { token, fullName, email: userEmail, isAdmin } = response.data;
+      login({ token, fullName, email: userEmail, isAdmin });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Login Successful!',
+        text: 'You have successfully logged in.',
+        confirmButtonColor: '#3085d6',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate(isAdmin ? "/admin/dashboard" : "/home");
+        }
+      });
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
-      console.error("Login error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: error.response?.data?.message || 'Invalid email or password.',
+        confirmButtonColor: '#d33',
+      });
     }
   };
 
+  const handleAdminClick = () => {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Restricted Page!',
+      html: `
+        <div style="color: #c0392b; font-size: 16px; line-height: 1.6;">
+          <strong>This is the Restricted Page.</strong><br/>
+          It is blocked by <strong>Technogiq IT Solution</strong>.<br/>
+          <strong>Only admin can login it.</strong>
+        </div>
+      `,
+      confirmButtonColor: '#d33',
+      background: '#ffe6e6',
+    });
+  };
+  
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        className="fixed top-0 left-0 w-full h-full object-cover"
-      >
-        <source src="/vedio2.mp4" type="video/mp4" />
-      </video>
-
-      {/* Dark Overlay */}
-      <div className="fixed inset-0 bg-black/40"></div>
-
-      {/* Glassmorphic Login Form */}
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative bg-white/10 backdrop-blur-lg p-8 rounded-lg shadow-xl max-w-md w-full text-white border border-white/20"
-      >
-        <h2 className="text-3xl font-bold text-center mb-6">Login</h2>
-
-        {error && <p className="text-red-500 text-center">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 p-4">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
+        {error && <p className="text-red-500 text-center mb-3">{error}</p>}
 
         <form className="space-y-5" onSubmit={handleSubmit}>
-          <motion.div whileFocus={{ scale: 1.05 }}>
-            <label className="block mb-1 text-sm">Email Address</label>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Email Address</label>
             <input
               type="email"
-              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full p-3 border rounded-lg"
               required
             />
-          </motion.div>
-
-          <motion.div whileFocus={{ scale: 1.05 }}>
-            <label className="block mb-1 text-sm">Password</label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              required
-            />
-          </motion.div>
-
-          <div className="text-right">
-            <a href="#" className="text-blue-300 hover:underline text-sm">
-              Forgot Password?
-            </a>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg shadow-md font-semibold transition"
-          >
-            Login
-          </motion.button>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded-lg"
+              required
+            />
+          </div>
+
+          <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-lg">Login</button>
         </form>
 
-        <p className="text-center text-sm mt-5">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-blue-300 hover:underline">
-            Sign Up
-          </a>
-        </p>
-      </motion.div>
+        {/* Admin login alert link */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={handleAdminClick}
+            className="text-red-600 hover:text-red-800 font-semibold underline"
+          >
+            Admin Login
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
